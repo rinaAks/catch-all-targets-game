@@ -1,5 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -23,6 +26,9 @@ public class PlayerController : MonoBehaviour
 
     public HealthBar healthBar;
 
+    public Text winLooseText;
+    private float timer; 
+
     private void OnCollisionEnter(Collision collision)
     {
         // Проверяем, является ли объект пулей
@@ -32,11 +38,31 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private IEnumerator Timer()
+    {
+        while (timer <= 60f)
+        {
+            yield return new WaitForSeconds(1f); 
+            timer += 1f; 
+        }
+
+        if (timer > 60f)
+        {
+            winLooseText.color = Color.green;
+            winLooseText.text = "YOU WIN";
+            Time.timeScale = 0; 
+        }
+    }
+
     void Start()
     {
+        winLooseText.text = "";
         rb=GetComponent<Rigidbody>();
         jump = new Vector3(0.0f, 2.0f, 0.0f);
         healthBar.SetMaxHealth(health);
+
+        timer = 0f;
+        StartCoroutine(Timer());
     }
 
     void OnCollisionStay(){
@@ -87,6 +113,11 @@ public class PlayerController : MonoBehaviour
     {
         health -= damage;
         healthBar.SetHealth(health);
-        //if (health <= 0) winText.text = "Вы проиграли";
+        if (health <= 0)
+        {
+            winLooseText.color = Color.red;
+            winLooseText.text = "YOU LOOSE";
+            Time.timeScale = 0;
+        }
     }
 }
